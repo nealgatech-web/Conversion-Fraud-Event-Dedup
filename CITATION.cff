@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+title: "Event Deduplication & Provenance for Attribution"
+authors:
+  - family-names: Wu
+    given-names: Bella
+date-released: 2025-11-08
+license: Apache-2.0

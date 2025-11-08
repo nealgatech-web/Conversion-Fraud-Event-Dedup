@@ -1,0 +1,8 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.1
+networkx==3.3
+reportlab==4.2.5
