@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 from ..dedupe.hasher import fuzzy_signature
 from ..dedupe.rules import ReplayWindowDetector, ClusterAttribution
+import os, json
 
 app = FastAPI(title="Event Dedup & Provenance API")
 
@@ -18,10 +19,34 @@ class Event(BaseModel):
     fingerprint: Optional[str] = ""
     label: Optional[str] = "unknown"
 
+# Initialize detectors and memory
 detector = ReplayWindowDetector(window_sec=300)
 attrib = ClusterAttribution()
 flagged: List[Dict] = []
 seen_total = 0
+
+# === Preload results from batch pipeline if available ===
+SUMMARY_PATH = "outputs/summary.json"
+REPORT_PATH = "outputs/report.jsonl"
+
+if os.path.exists(SUMMARY_PATH):
+    with open(SUMMARY_PATH, "r", encoding="utf-8") as f:
+        cached_summary = json.load(f)
+    seen_total = cached_summary.get("total_events", 0)
+    for ip, count in cached_summary.get("top_sources", {}).get("ip", []):
+        attrib.by_ip[ip] = count
+    for fp, count in cached_summary.get("top_sources", {}).get("fingerprint", []):
+        attrib.by_fp[fp] = count
+
+if os.path.exists(REPORT_PATH):
+    with open(REPORT_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                flagged.append(json.loads(line))
+            except Exception:
+                pass
+
+# === REST Endpoints ===
 
 @app.post("/ingest")
 def ingest(events: List[Event]):
@@ -31,7 +56,7 @@ def ingest(events: List[Event]):
         d = e.model_dump()
         sig = fuzzy_signature(d)
         hit, reason = detector.observe(sig, d.get("ts", 0.0))
-        attrib.add(d.get("ip",""), d.get("fingerprint",""))
+        attrib.add(d.get("ip", ""), d.get("fingerprint", ""))
         seen_total += 1
         if hit:
             item = {"id": d["id"], "reason": reason, "label": d.get("label")}
