@@ -15,7 +15,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 # 2) Generate synthetic events (normal + attacks) => data/events.jsonl
-python src/synthetic_events/generate.py --n 50000 --attack-rate 0.08 --seed 42
+python3 src/synthetic_events/generate.py --n 50000 --attack-rate 0.08 --seed 42
 
 # 3) Run dedupe pipeline (flags duplicates/attacks) => outputs/report.jsonl + outputs/summary.json
 python3 -m src.dedupe.pipeline --input data/events.jsonl \

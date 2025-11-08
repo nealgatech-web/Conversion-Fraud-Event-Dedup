@@ -75,3 +75,8 @@ def summary():
 @app.get("/suspects")
 def suspects(n: int = 100):
     return {"suspects": flagged[-n:]}
+
+@app.get("/tuning")
+def tuning_state():
+    """Return current adaptive replay-detector parameters."""
+    return detector.diagnostics()
