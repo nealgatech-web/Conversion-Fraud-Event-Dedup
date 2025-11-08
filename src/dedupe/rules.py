@@ -12,7 +12,7 @@ class ReplayWindowDetector:
     def __init__(self, window_sec: int = 300):
         self.window = window_sec
         self.sig_last_ts: Dict[str, float] = {}
-                    self.sig_counts: Dict[str, int] = defaultdict(int)
+        self.sig_counts: Dict[str, int] = defaultdict(int)
 
     def observe(self, sig: str, ts: float) -> Tuple[bool, str]:
         prev = self.sig_last_ts.get(sig)
@@ -30,8 +30,10 @@ class ClusterAttribution:
         self.by_fp = defaultdict(int)
 
     def add(self, ip: str, fingerprint: str):
-        if ip: self.by_ip[ip] += 1
-        if fingerprint: self.by_fp[fingerprint] += 1
+        if ip:
+            self.by_ip[ip] += 1
+        if fingerprint:
+            self.by_fp[fingerprint] += 1
 
     def top_sources(self, k: int = 10):
         ips = sorted(self.by_ip.items(), key=lambda x: x[1], reverse=True)[:k]

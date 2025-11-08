@@ -18,7 +18,10 @@ pip install -r requirements.txt
 python src/synthetic_events/generate.py --n 50000 --attack-rate 0.08 --seed 42
 
 # 3) Run dedupe pipeline (flags duplicates/attacks) => outputs/report.jsonl + outputs/summary.json
-python src/dedupe/pipeline.py --input data/events.jsonl --window-sec 300 --sig-fields user_id,device_id,ip,campaign_id,amount --out-dir outputs --summary
+python3 -m src.dedupe.pipeline --input data/events.jsonl \
+    --window-sec 300 \
+    --sig-fields user_id,device_id,ip,campaign_id,amount \
+    --out-dir outputs --summary
 
 # 4) (Optional) Serve API demo
 uvicorn src.api.main:app --reload
